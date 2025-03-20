@@ -2,8 +2,9 @@ name: Daily ArXiv Paper Assistant
 
 on:
   schedule:
-    # 北京时间早上7:30 (UTC+8) = UTC时间23:30 (前一天)
-    - cron: '30 23 * * *'
+    # 北京时间早上8:10 (UTC+8) = UTC时间00:10
+    # arXiv 在北京时间早上八点更新，而deepseek八点半前费用减半，因此设定为8:10 AM。
+    - cron: '10 00 * * *'
   # 允许手动触发工作流（用于测试）
   workflow_dispatch:
 
