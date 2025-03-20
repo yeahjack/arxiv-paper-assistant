@@ -15,7 +15,7 @@ def get_yesterday():
     获取前一天的日期
     """
     today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=2)
+    yesterday = today - datetime.timedelta(days=1)
     return yesterday.strftime('%Y-%m-%d')
 
 
@@ -86,7 +86,7 @@ def search_arxiv_papers(search_term, target_date, max_results=10):
             comments = comments_elem.text.strip()
 
         # 判断文章的发布日期是否为目标日期
-        if pub_date == target_date and True:
+        if pub_date == target_date:
             papers.append({
                 'title': title,
                 'authors': authors,
