@@ -79,7 +79,7 @@ def search_arxiv_papers(search_term, target_date, max_results=10):
         for category in entry.findall('./atom:category', namespaces):
             category_term = category.get('term')
             categories.append(category_term)
-            
+
         # 获取评论 (comments)
         comments = None
         comments_elem = entry.find('./arxiv:comment', namespaces)
@@ -174,11 +174,11 @@ def format_paper_for_email(paper, translated_summary=None, contribution_summary=
     paper_info += f"👥 作者: {authors_str}\n"
     paper_info += f"🏷️ 分类: {categories_str}\n"
     paper_info += f"📅 发布日期: {paper['pub_date']}\n"
-    
+
     # 添加评论信息 (如果有)
     if paper.get('comments'):
         paper_info += f"💬 评论: {paper['comments']}\n"
-        
+
     paper_info += f"🔗 ArXiv链接: https://arxiv.org/abs/{paper['arxiv_id']}\n"
     paper_info += f"📄 PDF下载: https://arxiv.org/pdf/{paper['arxiv_id']}.pdf\n\n"
 
@@ -265,7 +265,8 @@ if __name__ == '__main__':
     # OpenAI API设置
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
     OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "deepseek-chat")
-    OPENAI_API_BASE = os.environ.get("OPENAI_API_BASE", "https://api.deepseek.com/v1")
+    OPENAI_API_BASE = os.environ.get(
+        "OPENAI_API_BASE", "https://api.deepseek.com/v1")
 
     # 定义提示词模板
     TRANSLATION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要翻译成中文，注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。
@@ -275,12 +276,14 @@ if __name__ == '__main__':
 {text}"""
 
     # 从环境变量获取关键词列表
-    search_terms_str = os.environ.get("SEARCH_TERMS", '"attention score","attention modification","llm watermark","long video understanding"')
-    search_terms = [term.strip() for term in search_terms_str.strip('"').split(',')]
-    
+    search_terms_str = os.environ.get(
+        "SEARCH_TERMS", '"transformer","large language model"')
+    search_terms = [term.strip()
+                    for term in search_terms_str.strip('"').split(',')]
+
     # 获取的最大论文数
-    max_results = int(os.environ.get("MAX_RESULTS", "1"))
-    
+    max_results = int(os.environ.get("MAX_RESULTS", "10"))
+
     # 获取前一天的日期
     yesterday = get_yesterday()
 
@@ -314,7 +317,7 @@ if __name__ == '__main__':
     # 检查是否找到了任何论文
     if not all_papers:
         print(f"没有找到{yesterday}发布的符合任何关键词的论文，将发送空结果邮件")
-        
+
         # 创建一个没有找到论文的邮件内容，使用简单格式
         email_content = f"""【ArXiv论文日报】{yesterday}
 ==================================================
@@ -325,10 +328,10 @@ if __name__ == '__main__':
         # 添加所有搜索关键词，简单格式
         for search_term in search_terms:
             email_content += f"🔍 {search_term}\n"
-            
+
         email_content += f"\n📋 我们将继续监控这些关键词，有新论文发布时会及时通知您。\n"
         email_content += f"==================================================\n"
-        
+
         # 发送邮件
         send_email(
             f"ArXiv论文日报 - {yesterday} - 未找到相关论文",
@@ -340,7 +343,7 @@ if __name__ == '__main__':
             SMTP_SERVER,
             SMTP_PORT
         )
-        
+
         print("已发送空结果通知邮件")
         exit()
 
