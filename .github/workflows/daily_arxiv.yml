@@ -2,8 +2,9 @@ name: Daily ArXiv Paper Assistant
 
 on:
   schedule:
-    # Beijing Time 7:30 AM (UTC+8) = UTC Time 23:30 (Prior Day)
+    # 北京时间早上7:30 (UTC+8) = UTC时间23:30 (前一天)
     - cron: '30 23 * * *'
+  # 允许手动触发工作流（用于测试）
   workflow_dispatch:
 
 jobs:
@@ -11,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
           cache: 'pip'
@@ -41,7 +42,7 @@ jobs:
         
       - name: Upload logs if failed
         if: failure()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: execution-logs
           path: ./*.log
