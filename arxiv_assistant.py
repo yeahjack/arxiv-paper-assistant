@@ -279,7 +279,7 @@ if __name__ == '__main__':
     search_terms_str = os.environ.get(
         "SEARCH_TERMS", '"transformer","large language model"')
     search_terms = [term.strip()
-                    for term in search_terms_str.strip('"').split(',')]
+                    for term in search_terms_str.strip('\'').split(',')]
 
     # 获取的最大论文数
     max_results = int(os.environ.get("MAX_RESULTS", "10"))
@@ -327,7 +327,6 @@ if __name__ == '__main__':
 """
         # 添加所有搜索关键词，简单格式
         for search_term in search_terms:
-            print(search_term)
             email_content += f"🔍 {search_term}\n"
 
         email_content += f"\n📋 我们将继续监控这些关键词，有新论文发布时会及时通知您。\n"
