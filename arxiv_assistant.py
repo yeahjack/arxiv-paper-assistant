@@ -10,18 +10,32 @@ import xml.etree.ElementTree as ET
 import os
 
 
-def get_yesterday():
+def get_target_date(days_ago=2):
     """
-    获取前一天的日期
+    获取指定天数之前的日期
+    
+    参数:
+    days_ago (int): 需要往前推多少天，默认为2天
+    
+    返回:
+    str: 格式为'YYYY-MM-DD'的日期字符串
     """
     today = datetime.datetime.now()
-    yesterday = today - datetime.timedelta(days=1)
-    return yesterday.strftime('%Y-%m-%d')
+    target_date = today - datetime.timedelta(days=days_ago)
+    return target_date.strftime('%Y-%m-%d')
 
 
 def search_arxiv_papers(search_term, target_date, max_results=10):
     """
-    在 arXiv 按照关键词查找特定日期的计算机科学（CS）领域论文，并提取标题、作者、摘要、分类和评论等信息
+    在 arXiv 按照关键词查找从目标日期到今天的计算机科学（CS）领域论文，并提取标题、作者、摘要、分类和评论等信息
+    
+    参数:
+    search_term (str): 搜索关键词
+    target_date (str): 起始日期，格式为'YYYY-MM-DD'
+    max_results (int): 返回的最大结果数
+    
+    返回:
+    list: 包含论文信息的字典列表
     """
     papers = []
 
@@ -50,6 +64,13 @@ def search_arxiv_papers(search_term, target_date, max_results=10):
         print("没有找到与搜索词匹配的论文。")
         return []
 
+    # 获取今天的日期作为范围的上限
+    today_str = datetime.datetime.now().strftime('%Y-%m-%d')
+    
+    # 将目标日期字符串转换为datetime对象用于比较
+    target_date_obj = datetime.datetime.strptime(target_date, '%Y-%m-%d')
+    today_obj = datetime.datetime.strptime(today_str, '%Y-%m-%d')
+
     for entry in entries:
         # 获取标题
         title = entry.find('./atom:title', namespaces).text.strip()
@@ -64,6 +85,9 @@ def search_arxiv_papers(search_term, target_date, max_results=10):
         pub_date_str = entry.find('./atom:published', namespaces).text
         pub_date = datetime.datetime.strptime(
             pub_date_str, "%Y-%m-%dT%H:%M:%SZ").strftime("%Y-%m-%d")
+        
+        # 将发布日期字符串转换为datetime对象用于比较
+        pub_date_obj = datetime.datetime.strptime(pub_date, '%Y-%m-%d')
 
         # 获取作者
         authors = []
@@ -86,8 +110,8 @@ def search_arxiv_papers(search_term, target_date, max_results=10):
         if comments_elem is not None and comments_elem.text:
             comments = comments_elem.text.strip()
 
-        # 判断文章的发布日期是否为目标日期
-        if pub_date == target_date:
+        # 判断文章的发布日期是否在目标日期和今天之间（包括两端）
+        if target_date_obj <= pub_date_obj <= today_obj:
             papers.append({
                 'title': title,
                 'authors': authors,
@@ -96,7 +120,7 @@ def search_arxiv_papers(search_term, target_date, max_results=10):
                 'pub_date': pub_date,
                 'summary': summary,
                 'categories': categories,
-                'comments': comments,  # 添加评论字段
+                'comments': comments,
             })
 
     return papers
@@ -269,10 +293,10 @@ if __name__ == '__main__':
         "OPENAI_API_BASE", "https://api.deepseek.com/v1")
 
     # 定义提示词模板
-    TRANSLATION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要翻译成中文，注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。
+    TRANSLATION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要翻译成中文，注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。输出纯文本，不需要Markdown格式。
 {text}"""
 
-    CONTRIBUTION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要使用中文，将最核心的内容用一句话说明，一般格式为：用了什么办法解决了什么问题。注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。
+    CONTRIBUTION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要使用中文，将最核心的内容用一句话说明，一般格式为：用了什么办法解决了什么问题。注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。输出纯文本，不需要Markdown格式。
 {text}"""
 
     # 从环境变量获取关键词列表
@@ -283,9 +307,13 @@ if __name__ == '__main__':
 
     # 获取的最大论文数
     max_results = int(os.environ.get("MAX_RESULTS", "10"))
+    
+    # 获取往前推的天数，默认为2天
+    days_ago = int(os.environ.get("DAYS_AGO", "2"))
 
-    # 获取前一天的日期
-    yesterday = get_yesterday()
+    # 获取目标日期和当前日期
+    target_date = get_target_date(days_ago)
+    today_date = datetime.datetime.now().strftime('%Y-%m-%d')
 
     # 用于存储不重复的论文（以arxiv_id为键）
     all_papers = {}
@@ -294,13 +322,13 @@ if __name__ == '__main__':
 
     # 遍历每个关键词进行搜索
     for search_term in search_terms:
-        print(f"搜索关键词 '{search_term}' 在 {yesterday} 发布的论文...")
+        print(f"搜索关键词 '{search_term}' 在 {target_date} 至今发布的论文...")
 
-        # 在 arxiv 按照关键词查找前一天的论文
-        papers = search_arxiv_papers(search_term, yesterday, max_results)
+        # 在 arxiv 按照关键词查找从目标日期到今天的论文
+        papers = search_arxiv_papers(search_term, target_date, max_results)
 
         if not papers:
-            print(f"没有找到{yesterday}发布的含 '{search_term}' 的论文")
+            print(f"没有找到从 {target_date} 至今发布的含 '{search_term}' 的论文")
             keyword_papers[search_term] = []
             continue
 
@@ -316,13 +344,13 @@ if __name__ == '__main__':
 
     # 检查是否找到了任何论文
     if not all_papers:
-        print(f"没有找到{yesterday}发布的符合任何关键词的论文，将发送空结果邮件")
+        print(f"没有找到从 {target_date} 至今发布的符合任何关键词的论文，将发送空结果邮件")
 
         # 创建一个没有找到论文的邮件内容，使用简单格式
-        email_content = f"""【ArXiv论文日报】{yesterday}
+        email_content = f"""【ArXiv论文日报】{today_date}
 ==================================================
 
-📢 通知: 今日未找到符合以下关键词的论文:
+📢 通知: 本次未找到符合以下关键词的论文:
 
 """
         # 添加所有搜索关键词，简单格式
@@ -334,7 +362,7 @@ if __name__ == '__main__':
 
         # 发送邮件
         send_email(
-            f"ArXiv论文日报 - {yesterday} - 未找到相关论文",
+            f"ArXiv论文日报 - {today_date} - 未找到相关论文",
             email_content,
             SENDER_EMAIL,
             SENDER_PASSWORD,
@@ -350,11 +378,11 @@ if __name__ == '__main__':
     print(f"总共找到 {len(all_papers)} 篇不重复的论文")
 
     # 创建一个简洁的邮件头部
-    email_content = f"""【ArXiv论文日报】{yesterday} 关键词: {', '.join(search_terms)}
+    email_content = f"""【ArXiv论文日报】{today_date} 关键词: {', '.join(search_terms)}
 ==================================================
 
 📊 总览:
-  • 总共找到 {len(all_papers)} 篇{yesterday}发布的相关论文
+  • 总共找到 {len(all_papers)} 篇从 {target_date} 至今发布的相关论文
 
 """
 
@@ -411,7 +439,7 @@ if __name__ == '__main__':
 
     # 发送包含所有论文信息的邮件
     send_email(
-        f"ArXiv论文日报 - {yesterday} - {len(all_papers)}篇论文",
+        f"ArXiv论文日报 - {today_date} - {len(all_papers)}篇论文",
         email_content,
         SENDER_EMAIL,
         SENDER_PASSWORD,
