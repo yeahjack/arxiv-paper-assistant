@@ -37,7 +37,9 @@ ArXiv 论文助手是一个自动化工具，可以根据指定的关键词搜�
 | RECEIVER_EMAILS | 收件人邮箱（多个用逗号分隔） | email1@example.com,email2@example.com |
 | SMTP_SERVER | SMTP服务器地址 | smtp.qq.com |
 | SMTP_PORT | SMTP服务器端口 | 465 |
-| OPENAI_API_KEY | AI服务API密钥 | sk-xxxxxxxxxxxxxxxx |
+| OPENAI_API_KEY | OpenAI 或其他兼容服务的 API 密钥 | sk-xxxxxxxxxxxxxxxx |
+| OPENAI_MODEL | 使用的 AI 模型 | `deepseek-chat` |
+| OPENAI_API_BASE | API 基础 URL（可选） | https://api.deepseek.com/v1 |
 | SEARCH_TERMS | 搜索关键词（用逗号分隔） | "transformer","attention" |
 | MAX_RESULTS | 每个关键词最大结果数 | 10 |
 
