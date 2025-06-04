@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      font-size: clamp(14px, 2.5vw, 17px);
+      background-color: #fdfdfd;
+      color: #333;
+    }
+
+    h2, h3, h4 {
+      color: #222;
+      margin-top: 1.5em;
+    }
+
+    .paper {
+      border-top: 1px solid #ccc;
+      padding-top: 10px;
+      margin-top: 20px;
+    }
+
+    .summary {
+      background: #f6f8fa;
+      padding: 12px;
+      border-left: 4px solid #007acc;
+      margin-top: 10px;
+      border-radius: 4px;
+    }
+
+    .section-title {
+      margin-bottom: 5px;
+      font-weight: bold;
+      color: #007acc;
+    }
+
+    a {
+      color: #007acc;
+      text-decoration: none;
+      display: inline-block;
+      margin-right: 10px;
+      margin-top: 4px;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 12px;
+      }
+
+      h2 {
+        font-size: 1.4em;
+      }
+
+      h3 {
+        font-size: 1.2em;
+      }
+
+      .summary {
+        font-size: 1em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h2>📬 arXiv 论文日报 - {{ today }}</h2>
+  <p><strong>关键词:</strong> {{ keywords }}</p>
+  <p>📅 查询时间段: {{ date_range }}</p>
+  <p>📊 共找到 <strong>{{ total_papers }}</strong> 篇论文。</p>
+
+  {% for keyword, papers in keyword_papers.items() %}
+    <h3>🔍 关键词: {{ keyword }}（共 {{ papers|length }} 篇）</h3>
+    {% for paper in papers %}
+    <div class="paper">
+      <h4>{{ paper.title }}</h4>
+      <p>
+        👥 <strong>作者:</strong> {{ paper.authors }}<br>
+        🏷️ <strong>分类:</strong> {{ paper.categories }}<br>
+        📅 <strong>发布日期:</strong> {{ paper.pub_date }}<br>
+        🔗 <strong>链接:</strong>
+        <a href="https://arxiv.org/abs/{{ paper.arxiv_id }}">摘要</a>
+        <a href="https://arxiv.org/pdf/{{ paper.arxiv_id }}.pdf">PDF</a>
+      </p>
+      {% if paper.comments %}
+        <p>💬 <strong>评论:</strong> {{ paper.comments }}</p>
+      {% endif %}
+      {% if paper.contribution %}
+        <div class="summary">
+          <div class="section-title">✅ 贡献要点：</div>
+          {{ paper.contribution }}
+        </div>
+      {% endif %}
+      <div class="summary">
+        <div class="section-title">📝 摘要：</div>
+        {{ paper.summary }}
+      </div>
+      {% if paper.translated_summary %}
+      <div class="summary">
+        <div class="section-title">🌐 中文摘要：</div>
+        {{ paper.translated_summary }}
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% endfor %}
+</body>
+</html>
