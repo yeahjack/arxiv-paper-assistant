@@ -164,7 +164,7 @@ if __name__ == "__main__":
     SMTP_PORT = int(os.environ.get("SMTP_PORT", "465"))
 
     OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-    OPENAI_MODEL = os.environ.get("OPENAI_API_MODEL", "gpt-3.5-turbo")
+    OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-3.5-turbo")
     OPENAI_API_BASE = os.environ.get("OPENAI_API_BASE")
 
     TRANSLATION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要翻译成中文，注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。输出纯文本，不需要Markdown格式。\n{text}"""
