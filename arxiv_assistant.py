@@ -171,7 +171,7 @@ if __name__ == "__main__":
     CONTRIBUTION_PROMPT = """我将给你一个人工智能领域的论文摘要，你需要使用中文，将最核心的内容用一句话说明，一般格式为：用了什么办法解决了什么问题。注意通顺流畅，领域专有用语（如transformer, token, logit）不用翻译。输出纯文本，不需要Markdown格式。\n{text}"""
 
     search_terms_str = os.environ.get("SEARCH_TERMS", '"transformer","large language model"')
-    search_terms = [term.strip().strip('"') for term in search_terms_str.split(",")]
+    search_terms = [term.strip() for term in search_terms_str.split(",")]
     max_results = int(os.environ.get("MAX_RESULTS", "10"))
     days_ago = int(os.environ.get("DAYS_AGO", "2"))
 
